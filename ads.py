@@ -9,8 +9,10 @@ from crewai_tools import SerperDevTool, FirecrawlScrapeWebsiteTool
 from tools.firecrawl_scrape_tool import InnerFirecrawlScrapeWebsiteTool
 from tools.serper_search_tool import InnerSerperDevTool
 from langchain_openai import ChatOpenAI
+import markdown
+from weasyprint import HTML
 
-llm = ChatOpenAI(model="gpt-4o")
+llm = ChatOpenAI(model="gpt-4o-mini")
 
 tool_web_page_scrape = InnerFirecrawlScrapeWebsiteTool()
 
@@ -20,7 +22,7 @@ agent_copywriter = Agent(
     verbose=True,
     memory=True,
     allow_delegation=False,
-    goal='Escrever copys para anúncios em vídeo de acordo com o brienfing passado.',
+    goal='Escrever copys para anúncios em vídeo de acordo com as informações do produto ou serviço.',
     backstory="""
         Você é um copywriter muito experiênte, criativo e profundo conhecedor da lógica clássica.
         Você cria copys que servem de roteiros para anúncios no facebook ads.  
@@ -40,7 +42,7 @@ agent_copywriter = Agent(
         Antes de falar do produto/serviço, você precisa deixa claro o que o leitor/ouvinte vai ganhar ou perder.
         Você não é dramático a menos que esteja falando de um assunto muito sério.
         O leitor/ouvinte precisa saber das consequências/benefícios antes de descobrir de que produto/serviço se trata.
-        
+
         Você consegue envolver o leitor/ouvinte na copy.
         Sua copy se parece muito com uma conversa "cara a cara".
         Você usa frases curtas e um tom informal de conversa.
@@ -152,6 +154,7 @@ task_criar_anuncios = Task(
         Não quero nada de emojis ou sugestões de cenários de gravação.
         Os anúncios não precisam de títulos.
         Caso você precise criar mais de 1 anúncio, quero que adicione, acima de cada um, a numeração. Ex: Anúncio 1, Anúncio 2, Anúncio 3.
+        Quero apenas o markdown na resposta.
     """,
 )
 
@@ -174,6 +177,12 @@ def write_anuncios():
     with open(filename, 'w') as f:
         f.write(task_criar_anuncios.output.raw)
 
+def write_anuncios_2():
+    html_content = markdown.markdown(task_criar_anuncios.output.raw)
+    
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    HTML(string=html_content).write_pdf(f"tmp/{timestamp}_anuncios.pdf")
+
 
 url = "https://promovaweb.com/"
 url = "https://victorelius.com.br/prolegomenos-academia-de-logica-correcao-seo/"
@@ -191,5 +200,6 @@ print(result)
 
 write_briefing()
 write_anuncios()
+write_anuncios_2()
 
 

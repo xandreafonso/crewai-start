@@ -21,7 +21,7 @@ class InnerSerperDevTool(BaseTool):
     args_schema: Type[BaseModel] = InnerSerperDevToolSchema
     search_url: str = "https://google.serper.dev/search"
     country: Optional[str] = ''
-    location: Optional[str] = ''
+    location: Optional[str] = 'Brazil' # esse foi o motivo de eu ter customizado essa tool. A pesquisa feita em inglês por padrão.
     locale: Optional[str] = 'pr-br' # esse foi o motivo de eu ter customizado essa tool. A pesquisa feita em inglês por padrão.
     n_results: int = 10
     save_file: bool = False
